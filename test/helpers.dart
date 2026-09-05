@@ -47,13 +47,14 @@ Widget testApp({
   required AppDatabase db,
   EntitlementService? entitlements,
   Widget? home,
+  KeyValueStore? kvStore,
   List<Override> overrides = const [],
 }) =>
     ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
         photoServiceProvider.overrideWithValue(FakeAppPhotoService()),
-        kvStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
+        kvStoreProvider.overrideWithValue(kvStore ?? InMemoryKeyValueStore()),
         entitlementServiceProvider
             .overrideWithValue(entitlements ?? FakeEntitlementService()),
         ...overrides,
