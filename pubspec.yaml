@@ -1,7 +1,7 @@
 name: hitch_post
 description: "Hitch Post — a private, on-device journal. © Code Cowboys LLC."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+1
 
 environment:
   # Matches cc_core's floor — every CC app builds with the SDK its

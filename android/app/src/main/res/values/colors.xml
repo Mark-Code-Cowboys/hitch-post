@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Adaptive-icon backdrop (referenced by mipmap-anydpi-v26) and
+         the splash, both the brand green. -->
+    <color name="ic_launcher_background">#2F5D3A</color>
     <color name="splash_background">#2F5D3A</color>
 </resources>
