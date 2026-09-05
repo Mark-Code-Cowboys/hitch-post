@@ -101,9 +101,12 @@ class CampgroundRepository {
         .write(CampgroundsCompanion(lat: Value(lat), lon: Value(lon)));
   }
 
+  /// Rewrites the campground's fields — except the map pin, which only
+  /// [setLocation] touches, so no edit path can silently clear it.
   Future<void> update(int id, CampgroundDraft d) {
     return (_db.update(_db.campgrounds)..where((c) => c.id.equals(id)))
-        .write(_companion(d));
+        .write(_companion(d).copyWith(
+            lat: const Value.absent(), lon: const Value.absent()));
   }
 
   /// How many sites and visits a delete would take with it.
