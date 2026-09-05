@@ -1,0 +1,26 @@
+name: hitch_post
+description: "Hitch Post — a private, on-device journal. © Code Cowboys LLC."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  # Matches cc_core's floor — every CC app builds with the SDK its
+  # codemagic.yaml pins (see the per-app-flutter-sdks note in cc_core).
+  sdk: ^3.12.2
+
+dependencies:
+  cc_core:
+    git:
+      url: https://github.com/Mark-Code-Cowboys/cc_core.git
+      ref: v0.13.0
+  flutter:
+    sdk: flutter
+  flutter_riverpod: ^3.4.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
