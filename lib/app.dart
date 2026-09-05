@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'core/theme/app_theme.dart';
-import 'features/home/home_screen.dart';
+import 'features/shell/home_shell.dart';
 
 class HitchPostApp extends StatelessWidget {
   const HitchPostApp({super.key});
@@ -13,7 +13,7 @@ class HitchPostApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
-      home: const HomeScreen(),
+      home: const HomeShell(),
     );
   }
 }

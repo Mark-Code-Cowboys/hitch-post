@@ -103,7 +103,7 @@ packages:
       path: "../CC_Core"
       relative: true
     source: path
-    version: "0.13.0"
+    version: "0.14.0"
   characters:
     dependency: transitive
     description:
@@ -448,7 +448,7 @@ packages:
     source: hosted
     version: "2.2.0"
   image_picker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: image_picker
       sha256: d8402284df184bc05f4a2210c6c23983b0720f4cd87cbd05c5390a78af602667
@@ -696,7 +696,7 @@ packages:
     source: hosted
     version: "1.9.1"
   path_provider:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: path_provider
       sha256: a7f4874f987173da295a61c181b8ee71dab59b332a486b391babf26a1b884825
