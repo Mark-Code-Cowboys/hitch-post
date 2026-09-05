@@ -6,7 +6,9 @@ import '../../core/utils/labels.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
 import '../campgrounds/campground_detail_screen.dart';
-import '../monetization/free_limit.dart';
+import '../monetization/monetization_providers.dart';
+import '../monetization/paywall_sheet.dart';
+import '../settings/settings_screen.dart';
 
 enum CampgroundSort { name, recent, rating }
 
@@ -59,7 +61,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     final campgrounds = ref.watch(campgroundsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Hitch Post')),
+      appBar: AppBar(
+        title: const Text('Hitch Post'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                  builder: (_) => const SettingsScreen()),
+            ),
+          ),
+        ],
+      ),
       body: campgrounds.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('$e')),
@@ -97,22 +111,17 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
 
   Widget _list(BuildContext context, List<Campground> all) {
     final theme = Theme.of(context);
-    final usage = campgroundFreeLimit.usage(all.length);
+    final usage = ref.watch(freeTierUsageProvider);
     final shown = filterAndSort(all, _search.text, _sort);
     return ListView(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          // Phase C swaps this for the tappable FreeTierCounter that
-          // hides for Pro owners.
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: Chip(
-              avatar: const Icon(Icons.forest_outlined, size: 18),
-              label: Text(usage.label),
-            ),
+        // Invisible for Pro owners; taps open the paywall.
+        if (usage != null)
+          FreeTierCounter(
+            usage: usage,
+            margin: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            onGoPro: () => showPaywallSheet(context),
           ),
-        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           child: TextField(

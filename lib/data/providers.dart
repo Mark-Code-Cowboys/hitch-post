@@ -13,6 +13,20 @@ final databaseProvider = Provider<AppDatabase>(
   (ref) => throw UnimplementedError('databaseProvider must be overridden'),
 );
 
+/// Overridden in tests with [InMemoryKeyValueStore].
+final kvStoreProvider = Provider<KeyValueStore>((ref) => SharedPrefsStore());
+
+/// Campgrounds ever created on this device; feeds the free tier so a
+/// slot can't be recycled by delete-and-re-add. (Rigs deliberately use
+/// the live count instead — trading up your trailer shouldn't lock a
+/// free user out of the garage.)
+final campgroundTallyProvider = Provider<LifetimeTally>((ref) {
+  final tally = LifetimeTally(ref.watch(kvStoreProvider),
+      key: 'campgrounds_created_lifetime');
+  ref.onDispose(tally.dispose);
+  return tally;
+});
+
 /// Overridden in main() with ImagePickerPhotoService over the app's
 /// visit_photos directory, and in tests with a fake.
 final photoServiceProvider = Provider<PhotoService>(
@@ -28,7 +42,8 @@ final journalRepositoryProvider = Provider<AppJournalRepository>(
 
 final campgroundRepositoryProvider = Provider<CampgroundRepository>(
   (ref) => CampgroundRepository(ref.watch(databaseProvider),
-      journal: ref.watch(journalRepositoryProvider)),
+      journal: ref.watch(journalRepositoryProvider),
+      tally: ref.watch(campgroundTallyProvider)),
 );
 
 final siteRepositoryProvider = Provider<SiteRepository>(

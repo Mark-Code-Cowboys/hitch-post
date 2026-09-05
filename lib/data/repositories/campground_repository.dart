@@ -1,4 +1,8 @@
+import 'dart:math';
+
+import 'package:cc_core/cc_core.dart';
 import 'package:drift/drift.dart';
+import 'package:stream_transform/stream_transform.dart';
 
 import '../database/app_database.dart';
 
@@ -35,11 +39,15 @@ class CampgroundDraft {
 }
 
 class CampgroundRepository {
-  CampgroundRepository(this._db, {AppJournalRepository? journal})
-      : _journalOverride = journal; // ignore: prefer_initializing_formals
+  CampgroundRepository(this._db,
+      {AppJournalRepository? journal, LifetimeTally? tally})
+      // ignore: prefer_initializing_formals
+      : _journalOverride = journal,
+        _tally = tally; // ignore: prefer_initializing_formals
 
   final AppDatabase _db;
   final AppJournalRepository? _journalOverride;
+  final LifetimeTally? _tally;
   late final AppJournalRepository _journal =
       _journalOverride ?? _db.journal();
 
@@ -62,8 +70,25 @@ class CampgroundRepository {
     return (await query.getSingle()).read(countExp)!;
   }
 
-  Future<int> create(CampgroundDraft d) {
-    return _db.into(_db.campgrounds).insert(_companion(d));
+  Future<int> create(CampgroundDraft d) async {
+    final id = await _db.into(_db.campgrounds).insert(_companion(d));
+    await _tally?.recordCreated(liveCount: await count());
+    return id;
+  }
+
+  /// Campgrounds ever created on this device: the tally, but never
+  /// below the live row count (pre-tally installs, backup restores).
+  Future<int> lifetimeCreated() async {
+    final live = await count();
+    final tallied = await _tally?.value() ?? 0;
+    return max(live, tallied);
+  }
+
+  /// Live [lifetimeCreated], ticking on creates and on row changes.
+  Stream<int> watchLifetimeCreated() {
+    final live = watchAll().map((rows) => rows.length);
+    final tallied = _tally?.watch() ?? Stream.value(0);
+    return live.combineLatest(tallied, (int a, int b) => max(a, b));
   }
 
   Future<void> update(int id, CampgroundDraft d) {

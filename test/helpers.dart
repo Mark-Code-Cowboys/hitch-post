@@ -9,6 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hitch_post/core/theme/app_theme.dart';
 import 'package:hitch_post/data/database/app_database.dart';
 import 'package:hitch_post/data/providers.dart';
+import 'package:hitch_post/features/monetization/monetization_providers.dart';
 import 'package:hitch_post/features/shell/home_shell.dart';
 import 'package:hitch_post/data/repositories/campground_repository.dart';
 import 'package:hitch_post/data/repositories/site_repository.dart';
@@ -40,10 +41,18 @@ class FakeAppPhotoService implements PhotoService {
 
 /// The app wired to an in-memory database and fake services; [home]
 /// defaults to the shell.
-Widget testApp({required AppDatabase db, Widget? home}) => ProviderScope(
+Widget testApp({
+  required AppDatabase db,
+  EntitlementService? entitlements,
+  Widget? home,
+}) =>
+    ProviderScope(
       overrides: [
         databaseProvider.overrideWithValue(db),
         photoServiceProvider.overrideWithValue(FakeAppPhotoService()),
+        kvStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
+        entitlementServiceProvider
+            .overrideWithValue(entitlements ?? FakeEntitlementService()),
       ],
       child: MaterialApp(
         theme: AppTheme.light(),
