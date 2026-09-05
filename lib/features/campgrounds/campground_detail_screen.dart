@@ -2,9 +2,12 @@ import 'package:cc_core/cc_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:latlong2/latlong.dart';
+
 import '../../core/utils/labels.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
+import '../map/location_picker_screen.dart';
 import '../sites/site_composer_screen.dart';
 import '../sites/site_detail_screen.dart';
 import 'campground_composer_screen.dart';
@@ -85,6 +88,17 @@ class CampgroundDetailScreen extends ConsumerWidget {
                           ? 'Would return'
                           : "Wouldn't return"),
                     ),
+                    // Opt-in: coordinates exist only after the user
+                    // drops the pin themselves.
+                    ActionChip(
+                      avatar: Icon(campground.lat == null
+                          ? Icons.add_location_alt_outlined
+                          : Icons.location_on),
+                      label: Text(campground.lat == null
+                          ? 'Set map pin'
+                          : 'Move map pin'),
+                      onPressed: () => _pickLocation(context, ref, campground),
+                    ),
                   ],
                 ),
                 if (campground.notes != null) ...[
@@ -112,6 +126,26 @@ class CampgroundDetailScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _pickLocation(
+      BuildContext context, WidgetRef ref, Campground campground) async {
+    final choice = await Navigator.of(context).push<PinChoice>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => LocationPickerScreen(
+          initial: campground.lat == null
+              ? null
+              : LatLng(campground.lat!, campground.lon!),
+        ),
+      ),
+    );
+    if (choice == null) return;
+    await ref.read(campgroundRepositoryProvider).setLocation(
+          campground.id,
+          lat: choice.point?.latitude,
+          lon: choice.point?.longitude,
+        );
   }
 
   Future<void> _confirmDelete(

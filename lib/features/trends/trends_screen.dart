@@ -10,6 +10,7 @@ import '../../core/export/export_service.dart';
 import '../../data/database/app_database.dart';
 import '../../data/providers.dart';
 import '../home/home_screen.dart';
+import '../map/pin_map_screen.dart';
 import '../monetization/monetization_providers.dart';
 import '../monetization/paywall_sheet.dart';
 import 'trends_math.dart';
@@ -151,7 +152,21 @@ class _TrendsContentState extends ConsumerState<_TrendsContent> {
           ),
         section(
           'The states map',
-          RegionTileGrid(tiles: usStateTiles, filled: states),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              RegionTileGrid(tiles: usStateTiles, filled: states),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.location_on_outlined),
+                label: const Text('Open the pin map'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                      builder: (_) => const PinMapScreen()),
+                ),
+              ),
+            ],
+          ),
         ),
         if (byYear.isNotEmpty)
           section('Nights by year', YearlyBars(countsByYear: byYear)),

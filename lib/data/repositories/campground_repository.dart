@@ -94,6 +94,13 @@ class CampgroundRepository {
     return live.combineLatest(tallied, (int a, int b) => max(a, b));
   }
 
+  /// Sets (or clears, with nulls) the campground's map pin. Opt-in
+  /// only: nothing else ever writes these columns.
+  Future<void> setLocation(int id, {double? lat, double? lon}) {
+    return (_db.update(_db.campgrounds)..where((c) => c.id.equals(id)))
+        .write(CampgroundsCompanion(lat: Value(lat), lon: Value(lon)));
+  }
+
   Future<void> update(int id, CampgroundDraft d) {
     return (_db.update(_db.campgrounds)..where((c) => c.id.equals(id)))
         .write(_companion(d));

@@ -20,7 +20,10 @@ dependencies:
   file_selector: ^1.0.3
   flutter:
     sdk: flutter
+  # The pin map (opt-in campground pins; tiles from OpenStreetMap).
+  flutter_map: ^8.2.2
   flutter_riverpod: ^3.4.2
+  latlong2: ^0.9.1
   # Journal photo capture (composer strip) + app documents dir.
   image_picker: ^1.2.3
   path_provider: ^2.1.6
