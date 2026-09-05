@@ -24,6 +24,9 @@ dependencies:
   # Journal photo capture (composer strip) + app documents dir.
   image_picker: ^1.2.3
   path_provider: ^2.1.6
+  # Export/backup share sheet (same pin as Course Ledger, approved
+  # there for the same feature).
+  share_plus: ^13.3.0
   stream_transform: ^2.1.1
 
 dev_dependencies:

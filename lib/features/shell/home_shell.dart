@@ -10,6 +10,7 @@ import '../monetization/monetization_providers.dart';
 import '../monetization/paywall_sheet.dart';
 import '../rig/rig_composer_screen.dart';
 import '../rig/rig_screen.dart';
+import '../trends/trends_screen.dart';
 
 class HomeShell extends ConsumerStatefulWidget {
   const HomeShell({super.key});
@@ -21,7 +22,7 @@ class HomeShell extends ConsumerStatefulWidget {
 class _HomeShellState extends ConsumerState<HomeShell> {
   var _index = 0;
 
-  static const _screens = [HomeScreen(), RigScreen()];
+  static const _screens = [HomeScreen(), RigScreen(), TrendsScreen()];
 
   /// Adding a campground past the free five (lifetime creations, so
   /// deletes don't refund slots) opens the paywall instead; unlocking
@@ -79,11 +80,12 @@ class _HomeShellState extends ConsumerState<HomeShell> {
             icon: const Icon(Icons.add),
             label: const Text('Add campground'),
           ),
-        _ => FloatingActionButton.extended(
+        1 => FloatingActionButton.extended(
             onPressed: _addRig,
             icon: const Icon(Icons.add),
             label: const Text('Add rig'),
           ),
+        _ => null, // trends is a reading tab
       },
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
@@ -93,6 +95,8 @@ class _HomeShellState extends ConsumerState<HomeShell> {
               icon: Icon(Icons.forest_outlined), label: 'Campgrounds'),
           NavigationDestination(
               icon: Icon(Icons.rv_hookup_outlined), label: 'Rig'),
+          NavigationDestination(
+              icon: Icon(Icons.insights_outlined), label: 'Trends'),
         ],
       ),
     );

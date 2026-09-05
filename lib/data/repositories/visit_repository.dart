@@ -55,6 +55,10 @@ class VisitRepository {
   late final AppJournalRepository _journal =
       _journalOverride ?? _db.journal();
 
+  /// Every visit in the log, raw — the trends math and exporters work
+  /// across the whole book.
+  Stream<List<Visit>> watchAllRaw() => _db.select(_db.visits).watch();
+
   /// A site's visits, newest arrival first, each with its story.
   Stream<List<VisitWithStory>> watchForSite(int siteId) {
     final query = _db.select(_db.visits)

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'app.dart';
+import 'core/export/share_plus_launcher.dart';
 import 'data/database/app_database.dart';
 import 'data/providers.dart';
 import 'features/scan_import/scan_import_providers.dart';
@@ -27,6 +28,8 @@ Future<void> main() async {
             .overrideWithValue(MlKitTextRecognitionService()),
         photoServiceProvider.overrideWithValue(
             ImagePickerPhotoService(photosDir, filePrefix: 'visit')),
+        shareLauncherProvider.overrideWithValue(SharePlusLauncher()),
+        tempDirProvider.overrideWithValue(getTemporaryDirectory),
       ],
       child: const HitchPostApp(),
     ),
