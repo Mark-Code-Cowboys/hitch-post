@@ -58,6 +58,9 @@ class CampgroundRepository {
     return query.watch();
   }
 
+  /// One-shot list for the importers (matching by name).
+  Future<List<Campground>> getAll() => _db.select(_db.campgrounds).get();
+
   Stream<Campground?> watchOne(int id) {
     final query = _db.select(_db.campgrounds)..where((c) => c.id.equals(id));
     return query.watchSingleOrNull();

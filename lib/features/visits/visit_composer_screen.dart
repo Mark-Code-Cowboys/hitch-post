@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/utils/dates.dart';
 import '../../data/providers.dart';
 import '../../data/repositories/visit_repository.dart';
+import '../scan_import/receipt_scan.dart';
 
 /// Log or edit a stay: the dates, what it cost, how it rated, the
 /// story, the photos — the journal entry composer over cc_core.
@@ -95,6 +96,24 @@ class _VisitComposerScreenState extends ConsumerState<VisitComposerScreen> {
     }
   }
 
+  /// Fills cost and dates from a scanned receipt — after the user
+  /// confirmed the reading in [scanReceipt]'s dialog, and still fully
+  /// editable here before saving.
+  Future<void> _scanReceipt() async {
+    final reading = await scanReceipt(context, ref);
+    if (reading == null || !mounted) return;
+    setState(() {
+      if (reading.costTotalCents != null) {
+        _cost.text = (reading.costTotalCents! / 100).toStringAsFixed(2);
+      }
+      if (reading.arrive != null) {
+        _arrive = reading.arrive!;
+        _depart = reading.depart ?? reading.arrive!;
+        if (_depart.isBefore(_arrive)) _depart = _arrive;
+      }
+    });
+  }
+
   Future<void> _save() async {
     if (_saving) return;
     setState(() => _saving = true);
@@ -131,6 +150,11 @@ class _VisitComposerScreenState extends ConsumerState<VisitComposerScreen> {
       appBar: AppBar(
         title: Text(widget.existing == null ? 'Log a visit' : 'Edit visit'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.receipt_long_outlined),
+            tooltip: 'Scan receipt',
+            onPressed: _scanReceipt,
+          ),
           TextButton(
               onPressed: _saving ? null : _save, child: const Text('Save')),
         ],

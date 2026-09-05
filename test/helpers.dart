@@ -4,6 +4,8 @@ import 'package:cc_core/cc_core.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+// Riverpod 3 keeps the Override type out of the main barrel.
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:hitch_post/core/theme/app_theme.dart';
@@ -45,6 +47,7 @@ Widget testApp({
   required AppDatabase db,
   EntitlementService? entitlements,
   Widget? home,
+  List<Override> overrides = const [],
 }) =>
     ProviderScope(
       overrides: [
@@ -53,6 +56,7 @@ Widget testApp({
         kvStoreProvider.overrideWithValue(InMemoryKeyValueStore()),
         entitlementServiceProvider
             .overrideWithValue(entitlements ?? FakeEntitlementService()),
+        ...overrides,
       ],
       child: MaterialApp(
         theme: AppTheme.light(),

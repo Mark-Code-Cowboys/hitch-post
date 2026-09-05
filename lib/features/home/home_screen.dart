@@ -8,6 +8,7 @@ import '../../data/providers.dart';
 import '../campgrounds/campground_detail_screen.dart';
 import '../monetization/monetization_providers.dart';
 import '../monetization/paywall_sheet.dart';
+import '../scan_import/import_sheet.dart';
 import '../settings/settings_screen.dart';
 
 enum CampgroundSort { name, recent, rating }
@@ -65,6 +66,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         title: const Text('Hitch Post'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.download_outlined),
+            tooltip: 'Import your old log',
+            onPressed: () => showImportSheet(context, ref),
+          ),
+          IconButton(
             icon: const Icon(Icons.settings_outlined),
             tooltip: 'Settings',
             onPressed: () => Navigator.of(context).push(
@@ -102,6 +108,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               style: theme.textTheme.bodyMedium?.copyWith(
                   color: theme.colorScheme.onSurfaceVariant),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 16),
+            // The converter, front and center for notebook keepers.
+            FilledButton.tonalIcon(
+              onPressed: () => showImportSheet(context, ref),
+              icon: const Icon(Icons.download_outlined),
+              label: const Text('Import your old log'),
             ),
           ],
         ),

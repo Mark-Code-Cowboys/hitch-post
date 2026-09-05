@@ -48,6 +48,13 @@ class SiteRepository {
     return query.watch();
   }
 
+  /// One-shot list for the importers (matching by site number).
+  Future<List<Site>> getForCampground(int campgroundId) {
+    final query = _db.select(_db.sites)
+      ..where((s) => s.campgroundId.equals(campgroundId));
+    return query.get();
+  }
+
   Stream<Site?> watchOne(int id) {
     final query = _db.select(_db.sites)..where((s) => s.id.equals(id));
     return query.watchSingleOrNull();
