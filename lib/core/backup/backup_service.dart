@@ -23,16 +23,6 @@ Future<Map<String, Object?>> buildExportData(
   final rigs =
       await (db.select(db.rigs)..orderBy([(t) => OrderingTerm.asc(t.id)]))
           .get();
-  final entries = await (db.select(db.appJournalEntries)
-        ..orderBy([(t) => OrderingTerm.asc(t.id)]))
-      .get();
-  final photos = await (db.select(db.appJournalPhotos)
-        ..orderBy([(t) => OrderingTerm.asc(t.id)]))
-      .get();
-  final tags = await (db.select(db.appJournalTags)
-        ..orderBy([(t) => OrderingTerm.asc(t.id)]))
-      .get();
-
   return {
     'app': 'HitchPost',
     'format': 1,
@@ -102,28 +92,7 @@ Future<Map<String, Object?>> buildExportData(
           'journalEntryId': r.journalEntryId,
         },
     ],
-    'journalEntries': [
-      for (final e in entries)
-        {
-          'id': e.id,
-          'notes': e.notes,
-          'rating': e.rating,
-          'createdAt': e.createdAt.toIso8601String(),
-        },
-    ],
-    'journalPhotos': [
-      for (final p in photos)
-        {
-          'id': p.id,
-          'entryId': p.entryId,
-          'path': p.path,
-          'caption': p.caption,
-        },
-    ],
-    'journalTags': [
-      for (final t in tags)
-        {'id': t.id, 'entryId': t.entryId, 'tag': t.tag},
-    ],
+    ...await db.journal().dumpJournalTables(),
   };
 }
 
@@ -141,16 +110,10 @@ Future<int> restoreFromExportData(
   final sites = data['sites'];
   final visits = data['visits'];
   final rigs = data['rigs'];
-  final entries = data['journalEntries'];
-  final photos = data['journalPhotos'];
-  final tags = data['journalTags'];
   if (campgrounds is! List ||
       sites is! List ||
       visits is! List ||
-      rigs is! List ||
-      entries is! List ||
-      photos is! List ||
-      tags is! List) {
+      rigs is! List) {
     throw const InvalidBackupException('Malformed export tables');
   }
 
@@ -159,31 +122,8 @@ Future<int> restoreFromExportData(
     await db.delete(db.campgrounds).go(); // sites+visits cascade
     await db.delete(db.appJournalEntries).go();
 
-    for (final row in entries.cast<Map<String, dynamic>>()) {
-      await db.into(db.appJournalEntries).insert(RawValuesInsertable({
-            'id': Variable(row['id'] as int),
-            'notes': Variable(row['notes'] as String?),
-            'rating': Variable(row['rating'] as int?),
-            if (row['createdAt'] != null)
-              'created_at':
-                  Variable(DateTime.parse(row['createdAt'] as String)),
-          }));
-    }
-    for (final row in photos.cast<Map<String, dynamic>>()) {
-      await db.into(db.appJournalPhotos).insert(RawValuesInsertable({
-            'id': Variable(row['id'] as int),
-            'entry_id': Variable(row['entryId'] as int),
-            'path': Variable(row['path'] as String),
-            'caption': Variable(row['caption'] as String?),
-          }));
-    }
-    for (final row in tags.cast<Map<String, dynamic>>()) {
-      await db.into(db.appJournalTags).insert(RawValuesInsertable({
-            'id': Variable(row['id'] as int),
-            'entry_id': Variable(row['entryId'] as int),
-            'tag': Variable(row['tag'] as String),
-          }));
-    }
+    await db.journal().restoreJournalTables(data);
+
     for (final row in campgrounds.cast<Map<String, dynamic>>()) {
       await db.into(db.campgrounds).insert(CampgroundsCompanion(
             id: Value(row['id'] as int),

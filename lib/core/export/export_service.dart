@@ -19,11 +19,6 @@ class ExportService {
   final Future<Directory> Function() _tempDir;
   final PhotoService? _photos;
 
-  static String _stamp(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-'
-      '${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}';
-
   /// Every visit as one flattened CSV row joined with its site and
   /// campground — the spreadsheet the Excel crowd came from, back out.
   /// Returns the written file (mainly for tests).
@@ -68,13 +63,16 @@ class ExportService {
         ],
     ]);
 
-    final stamp = _stamp(now ?? DateTime.now());
-    final file =
-        File('${(await _tempDir()).path}/hitchpost-visits-$stamp.csv');
-    await file.writeAsString(csv);
-    await _share.shareFile(file.path,
-        mimeType: 'text/csv', text: 'Hitch Post visits ($stamp)');
-    return file;
+    return shareStampedFile(
+      share: _share,
+      tempDir: _tempDir,
+      baseName: 'hitchpost-visits',
+      extension: 'csv',
+      mimeType: 'text/csv',
+      shareText: 'Hitch Post visits',
+      text: csv,
+      now: now,
+    );
   }
 
   /// The full log as one zip: export JSON plus journal photo files.
@@ -88,12 +86,15 @@ class ExportService {
           ? const {}
           : await _db.journal().collectMedia(store),
     );
-    final stamp = _stamp(now ?? DateTime.now());
-    final file =
-        File('${(await _tempDir()).path}/hitchpost-backup-$stamp.zip');
-    await file.writeAsBytes(bytes);
-    await _share.shareFile(file.path,
-        mimeType: 'application/zip', text: 'Hitch Post backup ($stamp)');
-    return file;
+    return shareStampedFile(
+      share: _share,
+      tempDir: _tempDir,
+      baseName: 'hitchpost-backup',
+      extension: 'zip',
+      mimeType: 'application/zip',
+      shareText: 'Hitch Post backup',
+      bytes: bytes,
+      now: now,
+    );
   }
 }

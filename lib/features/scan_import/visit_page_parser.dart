@@ -1,7 +1,5 @@
 import 'package:cc_core/cc_core.dart';
 
-import 'receipt_parser.dart';
-
 /// What one notebook page or spreadsheet-printout row transcribed to —
 /// the onboarding converter's schema. Every field is exactly what the
 /// camera saw; the user confirms and edits on the review screen before
@@ -39,17 +37,6 @@ final _nameNoise = RegExp(
     r'total|amount|paid|cost|balance|night|nights)\b',
     caseSensitive: false);
 
-/// Notebook headers get shouted too; make them readable. Mixed-case
-/// names pass through untouched.
-String _titleCaseShouted(String s) {
-  if (s != s.toUpperCase()) return s;
-  return s
-      .toLowerCase()
-      .split(' ')
-      .map((w) => w.isEmpty ? w : w[0].toUpperCase() + w.substring(1))
-      .join(' ');
-}
-
 /// Transcribes one notebook page's OCR into a [VisitPageDraft].
 ///
 /// Campground: the tallest text in the top third that isn't row
@@ -74,7 +61,7 @@ VisitPageDraft? parseVisitPage(List<OcrLine> lines) {
     if (text.length < 4 || _nameNoise.hasMatch(text)) continue;
     if (!RegExp(r'[a-zA-Z]{3}').hasMatch(text)) continue;
     if (parseLooseDate(text) != null) continue;
-    campground = _titleCaseShouted(text);
+    campground = titleCaseShouted(text);
     break;
   }
 

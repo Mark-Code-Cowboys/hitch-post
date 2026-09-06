@@ -1,6 +1,6 @@
+import 'package:cc_core/cc_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../core/utils/dates.dart';
 import '../monetization/monetization_providers.dart';
@@ -25,19 +25,10 @@ Future<ReceiptReading?> scanReceipt(BuildContext context, WidgetRef ref) async {
 
   final messenger = ScaffoldMessenger.of(context);
 
-  // Capture: document scanner (auto-crop/deskew) where available,
-  // otherwise the photo picker.
-  final scanner = ref.read(documentScanServiceProvider);
-  String? path;
-  if (scanner.isSupported) {
-    try {
-      path = (await scanner.scanAll(pageLimit: 1)).firstOrNull;
-    } on Exception {
-      path = null;
-    }
-  } else {
-    path = (await ImagePicker().pickImage(source: ImageSource.gallery))?.path;
-  }
+  final paths = await captureDocumentPages(
+      ref.read(documentScanServiceProvider),
+      pageLimit: 1);
+  final path = paths.firstOrNull;
   if (path == null || !context.mounted) return null;
 
   final ReceiptReading? reading;
